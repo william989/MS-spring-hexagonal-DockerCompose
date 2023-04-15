@@ -1,0 +1,45 @@
+version: '3.5'
+
+services:
+  postgres-p:
+    container_name: pg-products
+    image: postgres:13.9
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: product_db
+      PGDATA: /data/postgres
+    restart: unless-stopped
+  postgres-i:
+    container_name: pg-items
+    image: postgres:13.9
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: item_db
+      PGDATA: /data/postgres
+    restart: unless-stopped    
+  eureka:
+    container_name: eurekaservice
+    image: eurekaservice:latest
+    ports:
+      - "8761:8761"
+  gateway:
+    container_name: gatewayservice
+    image: gatewayservice:latest
+    ports:
+      - "8088:8088"  
+    depends_on:
+      - eureka
+  product:
+    container_name: productservice
+    image: productservice:latest
+    depends_on:
+      - eureka
+      - postgres-p
+  item:
+    container_name: itemservice
+    image: itemservice:latest
+    depends_on:
+      - eureka
+      - postgres-i     
